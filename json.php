@@ -23,12 +23,15 @@ $protocol = $_SERVER["SERVER_PROTOCOL"];
 if ( 'HTTP/1.1' != $protocol && 'HTTP/1.0' != $protocol )
 	$protocol = 'HTTP/1.0';
 
-if ( empty( $_GET ) || empty( $_GET['method'] ) ) {
+$params = $_GET + $_POST;
+
+if ( empty( $params ) || empty( $params['method'] ) ) {
 	header( "$protocol 400 Bad Request" );
 	exit();
 }
 
 include_once( './wordpress/wp-load.php' );
+include_once( ABSPATH . 'wp-admin/includes/admin.php' );
 
 $headers = headers_list();
 if ( ! empty( $headers ) )
@@ -36,8 +39,8 @@ if ( ! empty( $headers ) )
 
 $_COOKIE = array();
 
-$server_get = $_GET;
-$method = $server_get['method'];
+$server_params = $params;
+$method = $server_params['method'];
 
 if ( defined( 'XMLRPC_USES_JSON' ) && XMLRPC_USES_JSON ):
 
@@ -50,7 +53,7 @@ if ( defined( 'XMLRPC_USES_JSON' ) && XMLRPC_USES_JSON ):
 
 	if ( array_key_exists( $method, $wp_xmlrpc_server->methods ) ):
 
-		unset( $server_get['method'] );
+		unset( $server_params['method'] );
 
 		/**
 		 * XML-RPC callbacks expect a weirdly-arranged
@@ -58,17 +61,19 @@ if ( defined( 'XMLRPC_USES_JSON' ) && XMLRPC_USES_JSON ):
 		 *
 		 */
 		$params = null;
-		if ( ! empty( $server_get ) ) {
-			if ( 1 === count( $server_get ) )
-				$params = reset( $server_get );
+		if ( ! empty( $server_params ) ) {
+			if ( 1 === count( $server_params ) )
+				$params = reset( $server_params );
 			else
-				$params = array_values( $server_get );
+				$params = array_values( $server_params );
 		}
 
+		$unthis = str_replace( 'this:', '', $wp_xmlrpc_server->methods[$method] );
+
 		if ( $params )
-			$response = call_user_func( $wp_xmlrpc_server->methods[$method], $params );
+			$response = call_user_func( array( $wp_xmlrpc_server, $unthis ), $params );
 		else
-			$response = call_user_func( $wp_xmlrpc_server->methods[$method] );
+			$response = call_user_func( array( $wp_xmlrpc_server, $unthis ) );
 
 		header( 'Connection: close' );
 		header( 'Content-Type: application/json' );
