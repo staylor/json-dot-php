@@ -62,6 +62,8 @@ Back-compat for XML-RPC:
 You many think the above is bizarre, guess what? It is! That's why I don't like XML-RPC. Too
 weird, too old, too embarassing to ask other people to use.
 
+Also, you can `GET` or `POST`.
+
 
 ## Installation
 
