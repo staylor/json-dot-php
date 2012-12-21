@@ -23,9 +23,9 @@ $protocol = $_SERVER["SERVER_PROTOCOL"];
 if ( 'HTTP/1.1' != $protocol && 'HTTP/1.0' != $protocol )
 	$protocol = 'HTTP/1.0';
 
-$params = $_GET + $_POST;
+$server_params = $_GET + $_POST;
 
-if ( empty( $params ) || empty( $params['method'] ) ) {
+if ( empty( $server_params ) || empty( $server_params['method'] ) ) {
 	header( "$protocol 400 Bad Request" );
 	exit();
 }
@@ -46,7 +46,6 @@ if ( ! empty( $headers ) )
 
 $_COOKIE = array();
 
-$server_params = $params;
 $method = $server_params['method'];
 
 if ( defined( 'XMLRPC_USES_JSON' ) && XMLRPC_USES_JSON ):
@@ -68,21 +67,14 @@ if ( defined( 'XMLRPC_USES_JSON' ) && XMLRPC_USES_JSON ):
 		 *
 		 */
 		$params = null;
-		if ( ! empty( $server_params ) ) {
-			if ( 1 === count( $server_params ) )
-				$params = reset( $server_params );
-			else
-				$params = array_values( $server_params );
-		}
+		if ( ! empty( $server_params ) )
+			$params = 1 === count( $server_params ) ? reset( $server_params ) : array_values( $server_params );
 
 		$unthis = $wp_xmlrpc_server->methods[$method];
-		if ( is_string( $unthis ) )
-			$unthis = array( $wp_xmlrpc_server, str_replace( 'this:', '', $wp_xmlrpc_server->methods[$method] ) );
+		if ( is_string( $unthis ) && 'this:' === substr( $unthis, 0, 5 ) )
+			$unthis = array( $wp_xmlrpc_server, str_replace( 'this:', '', $unthis ) );
 
-		if ( $params )
-			$response = call_user_func( $unthis, $params );
-		else
-			$response = call_user_func( $unthis );
+		$response = $params ? call_user_func( $unthis, $params ) : call_user_func( $unthis );
 
 		header( 'Connection: close' );
 		header( 'Content-Type: application/json' );
