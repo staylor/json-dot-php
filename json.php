@@ -106,10 +106,10 @@ function json_hello_string() {
 }
 
 $methods = apply_filters( 'json_methods', array(
-	'hello.world'	=> 'json_hello',
-	'hello.object'	=> 'json_hello_object',
-	'hello.int'		=> 'json_hello_int',
-	'hello.string'	=> 'json_hello_string',
+	'hello.world' => 'json_hello',
+	'hello.object' => 'json_hello_object',
+	'hello.int'	=> 'json_hello_int',
+	'hello.string' => 'json_hello_string',
 ) );
 
 /**
