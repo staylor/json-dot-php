@@ -75,12 +75,14 @@ if ( defined( 'XMLRPC_USES_JSON' ) && XMLRPC_USES_JSON ):
 				$params = array_values( $server_params );
 		}
 
-		$unthis = str_replace( 'this:', '', $wp_xmlrpc_server->methods[$method] );
+		$unthis = $wp_xmlrpc_server->methods[$method];
+		if ( is_string( $unthis ) )
+			$unthis = array( $wp_xmlrpc_server, str_replace( 'this:', '', $wp_xmlrpc_server->methods[$method] ) );
 
 		if ( $params )
-			$response = call_user_func( array( $wp_xmlrpc_server, $unthis ), $params );
+			$response = call_user_func( $unthis, $params );
 		else
-			$response = call_user_func( array( $wp_xmlrpc_server, $unthis ) );
+			$response = call_user_func( $unthis );
 
 		header( 'Connection: close' );
 		header( 'Content-Type: application/json' );
