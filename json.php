@@ -34,7 +34,7 @@ if ( empty( $params ) || empty( $params['method'] ) ) {
  * Let's guess where WordPress is!
  */
 if ( file_exists( 'wp-load.php' ) )
-	require_once( './wordpress/wp-load.php' );
+	require_once( './wp-load.php' );
 elseif ( file_exists( 'wordpress/wp-load.php' ) )
 	require_once( './wordpress/wp-load.php' );
 
