@@ -30,7 +30,14 @@ if ( empty( $params ) || empty( $params['method'] ) ) {
 	exit();
 }
 
-include_once( './wordpress/wp-load.php' );
+/**
+ * Let's guess where WordPress is!
+ */
+if ( file_exists( 'wp-load.php' ) )
+	require_once( './wordpress/wp-load.php' );
+elseif ( file_exists( 'wordpress/wp-load.php' ) )
+	require_once( './wordpress/wp-load.php' );
+
 include_once( ABSPATH . 'wp-admin/includes/admin.php' );
 
 $headers = headers_list();
